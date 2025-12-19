@@ -1,16 +1,24 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    pg_user: str
-    pg_password: str
-    pg_host: str
-    pg_port: str
-    pg_db: str
+    db_user: str
+    db_password: str
+    db_host: str
+    db_port: int
+    db_name: str
+    db_driver: str = "postgresql+asyncpg"
+    db_sync_driver: str = "postgresql+psycopg2"
 
     jwt_secret_key: str
-    jwt_hashing_algorithm: str
+    jwt_hashing_algorithm: str = "HS256"
     jwt_access_token_expiration_minutes: int = 30
     jwt_refresh_token_expiration_minutes: int = 80
 
-    model_config = SettingsConfigDict(extra="ignore", env_ignore_empty=True)
+    logging_lvl: str = "INFO"
+    logging_fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    model_config = SettingsConfigDict(
+        extra="ignore", env_ignore_empty=True, env_file=".env"
+    )

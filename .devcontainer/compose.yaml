@@ -1,7 +1,7 @@
 name: order-service-dev
 services:
   app:
-    container_name: order_service_devcontainer
+    container_name: order_service_proj_devcontainer
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile

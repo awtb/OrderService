@@ -1,9 +1,9 @@
 import datetime
-from typing import Literal, Any
+from typing import Any
+from typing import Literal
 
-import jwt
 import bcrypt
-
+import jwt
 from order_service.dto.auth import TokenDTO
 
 
@@ -12,13 +12,13 @@ class AuthHelper:
         self,
         secret_key: str,
         hashing_algorithm: str,
-        access_token_exp_minutes: int,
-        refresh_token_exp_minutes: int,
+        access_token_exp: int,
+        refresh_token_exp: int,
     ) -> None:
         self._secret_key = secret_key
         self._hashing_algorithm = hashing_algorithm
-        self._access_token_exp_minutes = access_token_exp_minutes
-        self._refresh_token_exp_minutes = refresh_token_exp_minutes
+        self._access_token_exp_minutes = access_token_exp
+        self._refresh_token_exp_minutes = refresh_token_exp
 
     @staticmethod
     def hash_password(password: str) -> str:
@@ -27,13 +27,17 @@ class AuthHelper:
         return hashed_password.decode()
 
     def verify_password(self, password: str, hashed_password: str) -> bool:
-        raise NotImplementedError()
+        return bcrypt.checkpw(password.encode(), hashed_password.encode())
 
     def create_jwt_token(
         self, scope: Literal["access", "refresh"], user_id: str
     ) -> TokenDTO:
         payload = self._build_token_payload(scope, user_id)
-        token = jwt.encode(payload, self._secret_key, algorithm=self._hashing_algorithm)
+        token = jwt.encode(
+            payload,
+            self._secret_key,
+            algorithm=self._hashing_algorithm,
+        )
 
         return TokenDTO(
             raw_str=token,

@@ -1,4 +1,4 @@
-exclude: 'alembic/versions'
+exclude: 'src/alembic'
 repos:
 -   repo: https://github.com/psf/black
     rev: 24.4.2

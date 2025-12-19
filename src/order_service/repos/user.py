@@ -1,8 +1,8 @@
-from sqlalchemy import select, exists
-
 from order_service.dto.user import UserDTO
 from order_service.models.user import User
 from order_service.repos.base import BaseRepository
+from sqlalchemy import exists
+from sqlalchemy import select
 
 
 class UserRepository(BaseRepository):
@@ -26,6 +26,6 @@ class UserRepository(BaseRepository):
         stmt = select(User).where(User.email == email)
 
         res = await self._session.execute(stmt)
-        first_row = res.first()
+        first_row = res.scalars().first()
 
         return first_row.to_dto() if first_row else None

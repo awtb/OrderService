@@ -1,19 +1,19 @@
-from order_service.dto.auth import (
-    RegistrationRequestDTO,
-    LoginRequestDTO,
-    TokenDTO,
-)
+from order_service.dto.auth import LoginRequestDTO
+from order_service.dto.auth import RegistrationRequestDTO
+from order_service.dto.auth import TokenDTO
 from order_service.dto.user import UserDTO
-from order_service.errors.auth import (
-    UserAlreadyExistsError,
-    IncorrectEmailOrPasswordError,
-)
+from order_service.errors.auth import IncorrectEmailOrPasswordError
+from order_service.errors.auth import UserAlreadyExistsError
 from order_service.helpers.auth import AuthHelper
 from order_service.repos.user import UserRepository
 
 
 class AuthService:
-    def __init__(self, user_repo: UserRepository, auth_helper: AuthHelper) -> None:
+    def __init__(
+        self,
+        user_repo: UserRepository,
+        auth_helper: AuthHelper,
+    ) -> None:
         self._user_repo = user_repo
         self._auth_helper = auth_helper
 

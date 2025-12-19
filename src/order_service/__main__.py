@@ -1,12 +1,19 @@
-from fastapi import FastAPI
-from order_service.routers.auth import router as auth_router
-from order_service.routers.order import router as order_router
+import uvicorn
+from typer import Option
+from typer import Typer
 
-app = FastAPI(
-    title="Order Service",
-    description="Order Service",
-    version="0.0.1",
-)
+app = Typer()
 
-app.include_router(order_router)
-app.include_router(auth_router)
+
+@app.command("start")
+def start(
+    host: str = Option("0.0.0.0"),
+    port: int = Option(8000),
+    reload: bool = Option(
+        default=False,
+    ),
+) -> None:
+    uvicorn.run("order_service.app:app", reload=reload, port=port, host=host)
+
+
+app()

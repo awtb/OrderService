@@ -1,4 +1,5 @@
-from order_service.errors.common import InvalidData, NotAllowedError
+from order_service.errors.common import InvalidData
+from order_service.errors.common import NotAllowedError
 
 
 class UserAlreadyExistsError(InvalidData):

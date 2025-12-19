@@ -1,14 +1,16 @@
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from order_service.dependencies.common import get_session, get_settings
+from order_service.dependencies.common import get_session
+from order_service.dependencies.common import get_settings
 from order_service.helpers.auth import AuthHelper
 from order_service.repos.user import UserRepository
 from order_service.services.auth import AuthService
 from order_service.settings import Settings
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def get_user_repository(session: AsyncSession = Depends(get_session)) -> UserRepository:
+def get_user_repository(
+    session: AsyncSession = Depends(get_session),
+) -> UserRepository:
     return UserRepository(session)
 
 
@@ -16,8 +18,8 @@ def get_auth_helper(settings: Settings = Depends(get_settings)) -> AuthHelper:
     return AuthHelper(
         secret_key=settings.jwt_secret_key,
         hashing_algorithm=settings.jwt_hashing_algorithm,
-        access_token_exp_minutes=settings.jwt_access_token_expiration_minutes,
-        refresh_token_exp_minutes=settings.jwt_refresh_token_expiration_minutes,
+        access_token_exp=settings.jwt_access_token_expiration_minutes,
+        refresh_token_exp=settings.jwt_refresh_token_expiration_minutes,
     )
 
 

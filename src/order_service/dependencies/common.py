@@ -1,20 +1,32 @@
-from functools import lru_cache
-from typing import AsyncGenerator, Any
+import logging
+from collections.abc import AsyncGenerator
+from typing import Any
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from fastapi import Depends
+from fastapi import Request
 from order_service.errors.common import FastApiError
 from order_service.settings import Settings
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-@lru_cache
-def get_settings() -> Settings:
-    settings = Settings()
-    return settings
+def get_settings(request: Request) -> Settings:
+    return request.app.state.settings
 
 
-async def get_session(self) -> AsyncGenerator[AsyncSession, Any]:
-    session = self.session_maker()
+def get_session_maker(request: Request) -> async_sessionmaker[AsyncSession]:
+    return async_sessionmaker(
+        bind=request.app.state.engine,
+        expire_on_commit=False,
+    )
+
+
+async def get_session(
+    session_maker: async_sessionmaker[AsyncSession] = Depends(
+        get_session_maker,
+    ),
+) -> AsyncGenerator[AsyncSession, Any]:
+    session = session_maker()
     try:
         yield session
         await session.commit()
@@ -22,7 +34,7 @@ async def get_session(self) -> AsyncGenerator[AsyncSession, Any]:
         await session.rollback()
         raise error
     except Exception as error:
-        self.logger.error(self.error_message, exc_info=error)
+        logging.error(msg="An error occurred", exc_info=error)
         await session.rollback()
         raise
     finally:
