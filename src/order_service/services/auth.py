@@ -1,6 +1,6 @@
 from order_service.dto.auth import LoginRequestDTO
 from order_service.dto.auth import RegistrationRequestDTO
-from order_service.dto.auth import TokenDTO
+from order_service.dto.auth import TokenPairDTO
 from order_service.dto.user import CurrentUserDTO
 from order_service.dto.user import UserDTO
 from order_service.errors.auth import IncorrectEmailOrPasswordError
@@ -40,7 +40,7 @@ class AuthService:
 
         return created_user
 
-    async def login(self, data: LoginRequestDTO) -> list[TokenDTO]:
+    async def login(self, data: LoginRequestDTO) -> TokenPairDTO:
         user = await self._user_repo.get_user_by_email(data.email)
 
         if user is None:
@@ -51,23 +51,12 @@ class AuthService:
         )
 
         if not password_matched:
-            IncorrectEmailOrPasswordError()
+            raise IncorrectEmailOrPasswordError()
 
-        access_token = self._auth_helper.create_jwt_token(
-            scope="access",
+        return self._auth_helper.create_token_pair(
             user_id=user.id,
             email=user.email,
         )
-        refresh_token = self._auth_helper.create_jwt_token(
-            scope="refresh",
-            user_id=user.id,
-            email=user.email,
-        )
-
-        return [
-            access_token,
-            refresh_token,
-        ]
 
     def get_current_user(self, token: str) -> CurrentUserDTO:
         token_payload = self._auth_helper.extract_token_payload(

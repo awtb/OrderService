@@ -4,7 +4,7 @@ from typing import Literal
 
 import bcrypt
 import jwt
-from order_service.dto.auth import TokenDTO
+from order_service.dto.auth import TokenPairDTO
 from order_service.errors.auth import ExpiredTokenError
 from order_service.errors.auth import InvalidAuthorizationScheme
 
@@ -31,12 +31,33 @@ class AuthHelper:
     def verify_password(self, password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode(), hashed_password.encode())
 
-    def create_jwt_token(
+    def create_token_pair(
+        self,
+        user_id: str,
+        email: str,
+    ) -> TokenPairDTO:
+        access_token = self._create_jwt_token(
+            scope="access",
+            user_id=user_id,
+            email=email,
+        )
+        refresh_token = self._create_jwt_token(
+            scope="refresh",
+            user_id=user_id,
+            email=email,
+        )
+
+        return TokenPairDTO(
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
+
+    def _create_jwt_token(
         self,
         scope: Literal["access", "refresh"],
         user_id: str,
         email: str,
-    ) -> TokenDTO:
+    ) -> str:
         payload = self._build_token_payload(scope, user_id, email)
         token = jwt.encode(
             payload,
@@ -44,10 +65,7 @@ class AuthHelper:
             algorithm=self._hashing_algorithm,
         )
 
-        return TokenDTO(
-            raw_str=token,
-            token_type=scope,
-        )
+        return token
 
     def extract_token_payload(
         self,

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Literal
 
 from order_service.dto.base import BaseDTO
 
@@ -16,9 +15,10 @@ class RegistrationRequestDTO(BaseDTO):
 
 
 @dataclass
-class TokenDTO(BaseDTO):
-    raw_str: str
-    token_type: Literal["access", "refresh"]
+class TokenPairDTO(BaseDTO):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
 
 
 @dataclass

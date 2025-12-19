@@ -1,6 +1,5 @@
 from fastapi import Depends
-from fastapi.security import HTTPAuthorizationCredentials
-from fastapi.security import HTTPBearer
+from fastapi.security import OAuth2PasswordBearer
 from order_service.dependencies.common import get_session
 from order_service.dependencies.common import get_settings
 from order_service.helpers.auth import AuthHelper
@@ -11,8 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.order_service.dto.user import CurrentUserDTO
 
-
-bearer = HTTPBearer()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_user_repository(
@@ -38,9 +36,9 @@ def get_auth_service(
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
+    token: str = Depends(oauth2_scheme),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> CurrentUserDTO:
-    current_user = auth_service.get_current_user(credentials.credentials)
+    current_user = auth_service.get_current_user(token)
 
     return current_user
