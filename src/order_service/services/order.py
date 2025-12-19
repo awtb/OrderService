@@ -38,6 +38,10 @@ class OrderService:
         self,
         request: UpdateOrderStatusDTO,
     ) -> OrderDTO:
+        if request.order.creator_id != request.current_user.id:
+            raise NotAllowedError(
+                f"You don't have an access to order {request.order.id}"
+            )
         updated_order = await self._order_repo.update_order_status(
             request.order, request.status
         )

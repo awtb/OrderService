@@ -14,3 +14,7 @@ class OrderSchema(BaseSchema):
     status: OrderStatus
     created_at: datetime
     creator_id: str
+
+
+class OrderStatusUpdateSchema(BaseSchema):
+    status: OrderStatus

@@ -8,9 +8,11 @@ from order_service.dto.base import PageDTO
 from order_service.dto.order import OrderCreateDTO
 from order_service.dto.order import OrderDTO
 from order_service.dto.order import OrdersFetchRequestDTO
+from order_service.dto.order import UpdateOrderStatusDTO
 from order_service.dto.user import CurrentUserDTO
 from order_service.schemas.order import OrderCreateRequestSchema
 from order_service.schemas.order import OrderSchema
+from order_service.schemas.order import OrderStatusUpdateSchema
 from order_service.services.order import OrderService
 
 router = APIRouter(
@@ -77,7 +79,15 @@ async def get_order(
     response_model=OrderSchema,
 )
 async def update_order(
+    data: OrderStatusUpdateSchema,
     order: OrderDTO = Depends(get_order),
     current_user: CurrentUserDTO = Depends(get_current_user),
+    order_service: OrderService = Depends(get_order_service),
 ) -> OrderDTO:
-    pass
+    dto = UpdateOrderStatusDTO(
+        status=data.status,
+        order=order,
+        current_user=current_user,
+    )
+    updated_order = await order_service.update_order_status(dto)
+    return updated_order

@@ -25,6 +25,7 @@ class OrderCreateDTO(BaseDTO):
 class UpdateOrderStatusDTO(BaseDTO):
     status: OrderStatus
     order: OrderDTO
+    current_user: CurrentUserDTO
 
 
 @dataclass
