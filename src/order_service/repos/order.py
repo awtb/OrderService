@@ -1,3 +1,4 @@
+from order_service.dto.base import PageDTO
 from order_service.dto.order import OrderDTO
 from order_service.enums.order import OrderStatus
 from order_service.models import Order
@@ -38,3 +39,16 @@ class OrderRepository(BaseRepository):
         updated_order = await self.get_order_by_id(order.id)
 
         return updated_order
+
+    async def fetch_orders(
+        self, page_size: int, page: int, user_id: str
+    ) -> PageDTO[OrderDTO]:
+        stmt = select(Order).where(Order.user_id == user_id)
+        page = await self._fetch(
+            stmt,
+            page_size,
+            page,
+            mapper_fn=lambda x: x.to_dto(),
+        )
+
+        return page

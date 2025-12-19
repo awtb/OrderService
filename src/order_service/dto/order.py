@@ -19,3 +19,16 @@ class OrderDTO(BaseDTO):
 class OrderCreateDTO(BaseDTO):
     items: dict
     current_user: CurrentUserDTO
+
+
+@dataclass
+class UpdateOrderStatusDTO(BaseDTO):
+    status: OrderStatus
+    order: OrderDTO
+
+
+@dataclass
+class OrdersFetchRequestDTO(BaseDTO):
+    page: int
+    page_size: int
+    user_id: str
