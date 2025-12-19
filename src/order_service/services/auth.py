@@ -1,6 +1,7 @@
 from order_service.dto.auth import LoginRequestDTO
 from order_service.dto.auth import RegistrationRequestDTO
 from order_service.dto.auth import TokenDTO
+from order_service.dto.user import CurrentUserDTO
 from order_service.dto.user import UserDTO
 from order_service.errors.auth import IncorrectEmailOrPasswordError
 from order_service.errors.auth import UserAlreadyExistsError
@@ -17,15 +18,20 @@ class AuthService:
         self._user_repo = user_repo
         self._auth_helper = auth_helper
 
-    async def register(self, data: RegistrationRequestDTO) -> UserDTO:
-        user_already_exists = await self._user_repo.user_exists(
+    async def register(
+        self,
+        data: RegistrationRequestDTO,
+    ) -> UserDTO:
+        already_exists = await self._user_repo.user_exists(
             data.email,
         )
 
-        if user_already_exists:
+        if already_exists:
             raise UserAlreadyExistsError()
 
-        hashed_password = self._auth_helper.hash_password(data.password)
+        hashed_password = self._auth_helper.hash_password(
+            data.password,
+        )
 
         created_user = await self._user_repo.create_user(
             data.email,
@@ -48,15 +54,29 @@ class AuthService:
             IncorrectEmailOrPasswordError()
 
         access_token = self._auth_helper.create_jwt_token(
-            "access",
-            user.id,
+            scope="access",
+            user_id=user.id,
+            email=user.email,
         )
         refresh_token = self._auth_helper.create_jwt_token(
-            "refresh",
-            user.id,
+            scope="refresh",
+            user_id=user.id,
+            email=user.email,
         )
 
         return [
             access_token,
             refresh_token,
         ]
+
+    def get_current_user(self, token: str) -> CurrentUserDTO:
+        token_payload = self._auth_helper.extract_token_payload(
+            token,
+        )
+
+        user = CurrentUserDTO(
+            email=token_payload["email"],
+            id=token_payload["uid"],
+        )
+
+        return user

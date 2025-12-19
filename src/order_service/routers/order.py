@@ -1,4 +1,7 @@
 from fastapi import APIRouter
+from fastapi import Depends
+from order_service.dependencies.auth import get_current_user
+from order_service.dto.user import CurrentUserDTO
 
 router = APIRouter(
     tags=["Orders"],
@@ -7,8 +10,8 @@ router = APIRouter(
 
 
 @router.get("/orders")
-async def get_orders():
-    pass
+async def get_orders(current_user: CurrentUserDTO = Depends(get_current_user)):
+    return current_user
 
 
 @router.post("/orders")

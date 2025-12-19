@@ -8,3 +8,9 @@ class UserDTO(BaseDTO):
     id: str
     email: str
     hashed_password: str
+
+
+@dataclass
+class CurrentUserDTO(BaseDTO):
+    id: str
+    email: str

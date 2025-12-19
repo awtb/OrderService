@@ -5,6 +5,8 @@ from typing import Literal
 import bcrypt
 import jwt
 from order_service.dto.auth import TokenDTO
+from order_service.errors.auth import ExpiredTokenError
+from order_service.errors.auth import InvalidAuthorizationScheme
 
 
 class AuthHelper:
@@ -30,9 +32,12 @@ class AuthHelper:
         return bcrypt.checkpw(password.encode(), hashed_password.encode())
 
     def create_jwt_token(
-        self, scope: Literal["access", "refresh"], user_id: str
+        self,
+        scope: Literal["access", "refresh"],
+        user_id: str,
+        email: str,
     ) -> TokenDTO:
-        payload = self._build_token_payload(scope, user_id)
+        payload = self._build_token_payload(scope, user_id, email)
         token = jwt.encode(
             payload,
             self._secret_key,
@@ -44,12 +49,31 @@ class AuthHelper:
             token_type=scope,
         )
 
+    def extract_token_payload(
+        self,
+        token: str,
+    ) -> dict[str, str]:
+        try:
+            payload = jwt.decode(
+                token, self._secret_key, algorithms=[self._hashing_algorithm]
+            )
+        except jwt.ExpiredSignatureError:
+            raise ExpiredTokenError
+        except jwt.InvalidTokenError:
+            raise InvalidAuthorizationScheme("Token is invalid.")
+
+        return payload
+
     def _build_token_payload(
-        self, scope: Literal["access", "refresh"], user_id: str
+        self,
+        scope: Literal["access", "refresh"],
+        user_id: str,
+        email: str,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "uid": user_id,
             "scope": scope,
+            "email": email,
         }
 
         if scope == "access":
