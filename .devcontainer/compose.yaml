@@ -8,13 +8,12 @@ services:
     volumes:
       - .:/workspace:cached
       - .git:/workspace/.git
-    env_file:
-      - ../.env
     environment:
       DB_PASSWORD: order_service
       DB_HOST: db
       SERVING_PORT: ${SERVING_PORT:-8000}
       DB_NAME: order_service
+      DB_USER: order_service_user
     depends_on:
       - db
     ports:
@@ -23,12 +22,12 @@ services:
 
     command: ["uv", "run", "scripts/dev.sh"]
   db:
-    container_name: order_service_devcontainer
+    container_name: order_service_proj_db
     image: postgres:17
     environment:
       - POSTGRES_DB=order_service
-      - POSTGRES_USER=order_service
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=order_service_user
+      - POSTGRES_PASSWORD=order_service
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

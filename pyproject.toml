@@ -2,7 +2,7 @@
 name = "order_service"
 version = "0.1.0"
 description = "Test task from FunTech"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.17.2",
     "asyncpg>=0.31.0",
