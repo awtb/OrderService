@@ -42,22 +42,17 @@ FastAPI · Typer · FastStream · Kafka · PostgreSQL · SQLAlchemy 2.0 · Alemb
 - [uv](https://github.com/astral-sh/uv) (preferred) or another PEP 517 installer
 - Docker (optional but recommended for dependencies)
 
-### 1. Install dependencies
 
-```bash
-uv sync
-```
-
-### 2. Configure environment
+### 1. Configure environment
 
 Create a `.env` at the repo root (everything below matches `Settings` defaults and `.env` is auto-loaded):
 
 ```dotenv
-REDIS_DSN=redis://localhost:6379/0
-BROKER_URL=localhost:9092
+REDIS_DSN=redis://redis:6379/0
+BROKER_URL=kafka:9092
 DB_USER=order_service_user
 DB_PASSWORD=order_service
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=5432
 DB_NAME=order_service
 JWT_SECRET_KEY=change-me
@@ -69,7 +64,7 @@ LOGGING_FMT=%(asctime)s - %(name)s - %(levelname)s - %(message)s
 SLOWAPI_RATELIMIT=30/minute
 ```
 
-### 3. Start backing services
+### 2. Start backing services
 
 Either bring up the full stack (recommended):
 
@@ -79,7 +74,7 @@ docker compose up -d db redis zookeeper kafka
 
 or point the env vars to already running services.
 
-### 4. Run database migrations
+### 3. Run database migrations
 
 ```bash
 uv run alembic upgrade head
@@ -92,7 +87,7 @@ uv run python -m order_service --reload
 # http://localhost:8000/docs shows the interactive docs
 ```
 
-### 6. Start the Kafka consumer (optional but useful when testing events)
+### 5. Start the Kafka consumer (optional but useful when testing events)
 
 ```bash
 uv run python -m order_consumer
