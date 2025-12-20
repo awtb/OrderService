@@ -102,10 +102,8 @@ class OrderRepository(BaseRepository):
         payload = await self._redis.hgetall(key)
         if not payload:
             return None
-        try:
-            return self._load_order(payload)
-        except Exception:
-            return None
+
+        return self._load_order(payload)
 
     async def _cache_set(self, order: OrderDTO) -> None:
         key = self._order_key(order.id)
