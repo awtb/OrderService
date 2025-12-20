@@ -35,7 +35,7 @@ class BaseRepository:
             .with_only_columns(func.count(), maintain_column_froms=True)
         )
         q = query.offset((page - 1) * page_size).limit(page_size)
-        rows = (await self._session.execute(q)).unique().scalars().all()
+        rows = (await self._session.execute(q)).unique().scalars().fetchall()
         items = [mapper_fn(item) for item in rows]
         total_pages = ceil(total / page_size)
 

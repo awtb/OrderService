@@ -3,6 +3,9 @@ from pydantic_settings import SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    redis_dsn: str = "redis://redis:6379/0"
+    broker_url: str = "kafka:9092"
+
     db_user: str
     db_password: str
     db_host: str
@@ -16,7 +19,7 @@ class Settings(BaseSettings):
     jwt_access_token_expiration_minutes: int = 30
     jwt_refresh_token_expiration_minutes: int = 80
 
-    logging_lvl: str = "INFO"
+    logging_lvl: str = "DEBUG"
     logging_fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
     model_config = SettingsConfigDict(

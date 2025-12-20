@@ -9,19 +9,81 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  worker:
+    image: ghcr.io/awtb/order_service_worker:latest
+    container_name: order_service_worker
+    command: [ "python", "-m", "order_consumer" ]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8010/internal/alive" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/awtb/orderservice:latest
+    image: ghcr.io/awtb/order_service:latest
     container_name: ${API_CONTAINER_NAME:-order_service}
     ports:
-      - ${SERVING_PORT}:${SERVING_PORT}
-    env_file:
-      - .env
+      - ${SERVING_PORT:-8000}:${SERVING_PORT:-8000}
     command: [ "uv", "run", "scripts/prod.sh" ]
     depends_on:
       - db
+
+  redis:
+    image: redis:8.0-alpine
+    container_name: order_service_proj_redis
+    restart: always
+    environment:
+      REDIS_USER: ${REDIS_USER:-redis}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+      REDIS_USER_PASSWORD: ${REDIS_USER_PASSWORD-redis}
+
+
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  kafka:
+    container_name: ${KAFKA_CONTAINER_NAME:-kafka}
+    image: confluentinc/cp-kafka:7.3.2
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    restart: always
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zookeeper:2888:3888
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -lc 'echo > /dev/tcp/127.0.0.1/2181'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
 
 volumes:
   pgdata:

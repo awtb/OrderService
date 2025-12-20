@@ -4,8 +4,10 @@ from typing import Any
 
 from fastapi import Depends
 from fastapi import Request
+from faststream.kafka import KafkaBroker
 from order_service.errors.common import FastApiError
 from order_service.settings import Settings
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +21,16 @@ def get_session_maker(request: Request) -> async_sessionmaker[AsyncSession]:
         bind=request.app.state.engine,
         expire_on_commit=False,
     )
+
+
+def get_redis(request: Request) -> Redis:
+    pool = request.app.state.redis_connection_pool
+
+    return Redis(connection_pool=pool)
+
+
+def get_broker(request: Request) -> KafkaBroker:
+    return request.app.state.broker
 
 
 async def get_session(

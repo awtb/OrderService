@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.get("/orders/user/{user_id}", summary="Get my orders")
+@router.get("/orders/user/{user_id}", summary="Get user's orders")
 async def get_orders(
     user_id: str = Path(title="User ID"),
     page: int = Query(title="Page", description="Page number", gt=0),

@@ -12,7 +12,10 @@ T = TypeVar("T", bound=BaseDTO)
 
 
 @dataclass
-class PageDTO(Generic[T], BaseDTO):
+class PageDTO(
+    BaseDTO,
+    Generic[T],
+):
     items: list[T]
     page_size: int
     total_pages: int

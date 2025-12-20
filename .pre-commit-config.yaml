@@ -15,7 +15,7 @@ repos:
     rev: v1.10.1
     hooks:
     -   id: mypy
-        additional_dependencies: [pytest==8.4.2, httpx==0.28.1]
+        additional_dependencies: [pytest==8.4.2, httpx==0.28.1, types-redis]
 
 -   repo: https://github.com/PyCQA/flake8
     rev: 7.1.0

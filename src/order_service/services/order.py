@@ -1,3 +1,6 @@
+from dataclasses import asdict
+
+from faststream.kafka import KafkaBroker
 from order_service.dto.base import PageDTO
 from order_service.dto.order import OrderCreateDTO
 from order_service.dto.order import OrderDTO
@@ -10,8 +13,13 @@ from order_service.repos.order import OrderRepository
 
 
 class OrderService:
-    def __init__(self, order_repo: OrderRepository) -> None:
+    def __init__(
+        self,
+        order_repo: OrderRepository,
+        kafka_broker: KafkaBroker,
+    ) -> None:
         self._order_repo = order_repo
+        self._broker = kafka_broker
 
     async def create_order(
         self,
@@ -21,6 +29,8 @@ class OrderService:
             user_id=order_create_request.current_user.id,
             items=order_create_request.items,
         )
+
+        await self._publish_order(created_order)
 
         return created_order
 
@@ -63,3 +73,9 @@ class OrderService:
             )
 
         return order
+
+    async def _publish_order(self, created_order: OrderDTO) -> None:
+        await self._broker.publish(
+            topic="new_order",
+            message=asdict(created_order),
+        )
