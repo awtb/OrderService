@@ -8,13 +8,20 @@ from order_service.routers.auth import router as auth_router
 from order_service.routers.order import router as order_router
 from order_service.settings import Settings
 from redis.asyncio import ConnectionPool
+from slowapi import _rate_limit_exceeded_handler
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine
 
 
-def load_settings(app_instance: FastAPI) -> None:
+def load_settings(app_instance: FastAPI) -> Settings:
     settings = Settings()
     app_instance.state.settings = settings
+
+    return settings
 
 
 async def init_redis_pool(app_instance: FastAPI) -> None:
@@ -91,12 +98,23 @@ async def lifespan(app_instance: FastAPI) -> AsyncGenerator:
     await remove_redis_connection_pool(app_instance)
 
 
-app = FastAPI(
-    title="Order Service",
-    description="Order Service",
-    version="0.0.1",
-    lifespan=lifespan,
-)
+def build_app() -> FastAPI:
+    app = FastAPI(
+        title="Order Service",
+        description="Order Service",
+        version="0.0.1",
+        lifespan=lifespan,
+    )
+    settings = load_settings(app)
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=[settings.slowapi_ratelimit],
+    )
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
 
-app.include_router(order_router)
-app.include_router(auth_router)
+    app.include_router(order_router)
+    app.include_router(auth_router)
+
+    return app

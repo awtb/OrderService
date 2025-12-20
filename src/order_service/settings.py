@@ -19,8 +19,10 @@ class Settings(BaseSettings):
     jwt_access_token_expiration_minutes: int = 30
     jwt_refresh_token_expiration_minutes: int = 80
 
-    logging_lvl: str = "DEBUG"
+    logging_lvl: str = "INFO"
     logging_fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    slowapi_ratelimit: str = "30/minute"
 
     model_config = SettingsConfigDict(
         extra="ignore", env_ignore_empty=True, env_file=".env"
