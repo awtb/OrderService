@@ -13,7 +13,13 @@ def start(
         default=False,
     ),
 ) -> None:
-    uvicorn.run("order_service.app:app", reload=reload, port=port, host=host)
+    uvicorn.run(
+        "order_service.app:build_app",
+        reload=reload,
+        port=port,
+        host=host,
+        factory=True,
+    )
 
 
 app()
