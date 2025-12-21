@@ -12,7 +12,7 @@ class User(BaseModel):
     id: Mapped[str] = mapped_column(
         String(), primary_key=True, nullable=False, default=lambda: str(ULID())
     )
-    email: Mapped[str] = mapped_column(String(), nullable=False)
+    email: Mapped[str] = mapped_column(String(), nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(String(), nullable=False)
 
     def to_dto(self) -> UserDTO:
