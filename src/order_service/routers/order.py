@@ -10,6 +10,7 @@ from order_service.dto.order import OrderDTO
 from order_service.dto.order import OrdersFetchRequestDTO
 from order_service.dto.order import UpdateOrderStatusDTO
 from order_service.dto.user import CurrentUserDTO
+from order_service.schemas.base import Page
 from order_service.schemas.order import OrderCreateRequestSchema
 from order_service.schemas.order import OrderSchema
 from order_service.schemas.order import OrderStatusUpdateSchema
@@ -18,10 +19,15 @@ from order_service.services.order import OrderService
 router = APIRouter(
     tags=["Orders"],
     prefix="/orders",
+    dependencies=[Depends(get_current_user)],
 )
 
 
-@router.get("/orders/user/{user_id}", summary="Get user's orders")
+@router.get(
+    "/user/{user_id}",
+    summary="Get user's orders",
+    response_model=Page[OrderSchema],
+)
 async def get_orders(
     user_id: str = Path(title="User ID"),
     page: int = Query(title="Page", description="Page number", gt=0),
@@ -41,7 +47,7 @@ async def get_orders(
 
 
 @router.post(
-    "/orders",
+    "/",
     response_model=OrderSchema,
     summary="Create a new order",
 )
@@ -62,7 +68,7 @@ async def create_order(
     return created_order
 
 
-@router.get("/orders/{order_id}", summary="Get Order by id")
+@router.get("/{order_id}", summary="Get Order by id")
 async def get_order(
     order_id: str = Path(title="Order ID"),
     current_user: CurrentUserDTO = Depends(get_current_user),
@@ -75,7 +81,7 @@ async def get_order(
 
 
 @router.patch(
-    "/orders/{order_id}",
+    "/{order_id}",
     response_model=OrderSchema,
 )
 async def update_order(
