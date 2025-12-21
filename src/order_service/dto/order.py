@@ -13,11 +13,13 @@ class OrderDTO(BaseDTO):
     status: OrderStatus
     created_at: datetime
     creator_id: str
+    order_price: float
 
 
 @dataclass
 class OrderCreateDTO(BaseDTO):
     items: dict
+    order_price: float
     current_user: CurrentUserDTO
 
 

@@ -59,6 +59,7 @@ async def create_order(
     dto = OrderCreateDTO(
         items=data.items,
         current_user=current_user,
+        order_price=data.order_price,
     )
 
     created_order = await order_service.create_order(

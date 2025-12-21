@@ -28,6 +28,7 @@ class OrderService:
         created_order = await self._order_repo.create_order(
             user_id=order_create_request.current_user.id,
             items=order_create_request.items,
+            order_price=order_create_request.order_price,
         )
 
         await self._publish_order(created_order)

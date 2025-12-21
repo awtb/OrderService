@@ -51,8 +51,13 @@ class OrderRepository(BaseRepository):
         self,
         user_id: str,
         items: dict[str, Any],
+        order_price: float,
     ) -> OrderDTO:
-        order_obj = Order(user_id=user_id, items=items)
+        order_obj = Order(
+            user_id=user_id,
+            items=items,
+            order_price=order_price,
+        )
 
         self._session.add(order_obj)
         await self._session.flush()
@@ -129,6 +134,7 @@ class OrderRepository(BaseRepository):
                 separators=(",", ":"),
                 ensure_ascii=False,
             ),
+            "order_price": order.order_price,
         }
 
     @staticmethod
@@ -142,4 +148,5 @@ class OrderRepository(BaseRepository):
             ),
             items=json.loads(payload["items"]),
             creator_id=payload["creator_id"],
+            order_price=float(payload["order_price"]),
         )

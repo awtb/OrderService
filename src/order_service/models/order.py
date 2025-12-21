@@ -6,6 +6,7 @@ from order_service.enums.order import OrderStatus
 from order_service.models.base import BaseModel
 from sqlalchemy import DateTime
 from sqlalchemy import Enum
+from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import JSON
 from sqlalchemy import String
@@ -29,6 +30,11 @@ class Order(BaseModel):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.now
     )
+    order_price: Mapped[float] = mapped_column(
+        Float(),
+        nullable=False,
+        dialect_names="postgresql",
+    )
 
     def to_dto(self) -> OrderDTO:
         return OrderDTO(
@@ -37,4 +43,5 @@ class Order(BaseModel):
             status=self.status,
             creator_id=self.user_id,
             items=self.items,
+            order_price=self.order_price,
         )

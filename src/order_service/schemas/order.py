@@ -6,6 +6,7 @@ from .base import BaseSchema
 
 class OrderCreateRequestSchema(BaseSchema):
     items: dict
+    order_price: float
 
 
 class OrderSchema(BaseSchema):
@@ -14,6 +15,7 @@ class OrderSchema(BaseSchema):
     status: OrderStatus
     created_at: datetime
     creator_id: str
+    order_price: float
 
 
 class OrderStatusUpdateSchema(BaseSchema):
