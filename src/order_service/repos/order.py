@@ -19,10 +19,10 @@ class OrderRepository(BaseRepository):
         self,
         session: AsyncSession,
         redis: Redis,
-        warmup_ttl_seconds: int = 300,
+        order_cache_ttl_seconds: int = 300,
     ) -> None:
         self._redis = redis
-        self._ttl = warmup_ttl_seconds
+        self._order_cache_ttl_seconds = order_cache_ttl_seconds
         super().__init__(session)
 
     async def get_order_by_id(self, order_id: str) -> OrderDTO | None:
@@ -110,7 +110,7 @@ class OrderRepository(BaseRepository):
         data = self._dump_order(order)
         pipe = self._redis.pipeline(transaction=False)
         pipe.hset(key, mapping=data)  # type: ignore
-        pipe.expire(key, time=self._ttl)
+        pipe.expire(key, time=self._order_cache_ttl_seconds)
         await pipe.execute()
 
     @staticmethod

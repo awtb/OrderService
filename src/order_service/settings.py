@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     logging_fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
     slowapi_ratelimit: str = "30/minute"
+    order_cache_ttl_seconds: int = 300
 
     model_config = SettingsConfigDict(
         extra="ignore", env_ignore_empty=True, env_file=".env"
