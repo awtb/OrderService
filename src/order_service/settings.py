@@ -2,6 +2,11 @@ from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
 
+def split_csv(value: str) -> list[str]:
+    items = [item.strip() for item in value.split(",")]
+    return [item for item in items if item]
+
+
 class Settings(BaseSettings):
     redis_dsn: str = "redis://redis:6379/0"
     broker_url: str = "kafka:9092"
@@ -24,6 +29,11 @@ class Settings(BaseSettings):
 
     slowapi_ratelimit: str = "30/minute"
     order_cache_ttl_seconds: int = 300
+
+    cors_allow_origins: list[str] = ["*"]
+    cors_allow_headers: list[str] = ["*"]
+    cors_allow_methods: list[str] = ["*"]
+    cors_allow_credentials: bool = True
 
     model_config = SettingsConfigDict(
         extra="ignore", env_ignore_empty=True, env_file=".env"

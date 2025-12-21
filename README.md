@@ -49,6 +49,10 @@ FastStream consumer
     LOGGING_FMT=%(asctime)s - %(name)s - %(levelname)s - %(message)s
     SLOWAPI_RATELIMIT=30/minute
     SERVING_PORT=8000
+    CORS_ALLOW_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+    CORS_ALLOW_HEADERS=["Authorization","Content-Type"]
+    CORS_ALLOW_METHODS=["GET","POST"]
+    CORS_ALLOW_CREDENTIALS=true
     ```
 
 2. Build and start the stack:
