@@ -9,10 +9,10 @@ class BaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T", bound=BaseSchema)
 
 
-class Page(Generic[T], BaseSchema):
+class Page(BaseSchema, Generic[T]):
     page_size: int
     total_pages: int
     total_items: int
