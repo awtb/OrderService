@@ -10,7 +10,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   worker:
-    image: ghcr.io/awtb/order_service:latest
+    image: ghcr.io/awtb/orderservice:latest
     container_name: order_service_worker
     command: [ "uv", "run", "scripts/start-consumer.sh" ]
     build:
@@ -31,7 +31,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/awtb/order_service:latest
+    image: ghcr.io/awtb/orderservice:latest
     container_name: ${API_CONTAINER_NAME:-order_service}
     ports:
       - ${SERVING_PORT:-8000}:${SERVING_PORT:-8000}
