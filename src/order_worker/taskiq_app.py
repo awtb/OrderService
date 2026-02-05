@@ -1,12 +1,13 @@
+from order_worker.settings import settings
 from taskiq import TaskiqEvents
 from taskiq import TaskiqState
 from taskiq_redis import RedisAsyncResultBackend
 from taskiq_redis import RedisStreamBroker
 
-from order_worker.settings import settings
-
 result_backend = RedisAsyncResultBackend(settings.redis_dsn)
-broker = RedisStreamBroker(settings.redis_dsn).with_result_backend(result_backend)
+broker = RedisStreamBroker(settings.redis_dsn).with_result_backend(
+    result_backend,
+)
 
 
 @broker.on_event(TaskiqEvents.WORKER_STARTUP)
