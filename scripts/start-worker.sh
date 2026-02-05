@@ -1,4 +1,4 @@
 #!/bin/sh
 
 export PYTHONPATH=$(pwd)/src:$PYTHONPATH
-python -m order_consumer
+taskiq worker order_worker.taskiq_app:broker

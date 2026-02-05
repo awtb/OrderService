@@ -15,7 +15,7 @@ Asynchronous FastAPI platform dedicated to the lifecycle of customer orders. It 
 - **API (`order_service`)** – FastAPI app started via Typer (`python -m order_service`). Lifespan hooks wire PostgreSQL, Redis, Kafka, logging, and SlowAPI rate limits.
 - **Database & Cache** – PostgreSQL for persistence, Redis for hot `Order` lookups (key format `order:<id>`).
 - **Messaging** – Kafka topic `new_order` receives an event after every successful `POST /orders` call.
-- **Worker (`order_consumer`)** – FastStream + uvicorn app that subscribes to `new_order` and simulates downstream processing.
+- **Worker (`order_consumer`)** – FastStream + uvicorn app that subscribes to `new_order` and enqueues TaskIQ jobs backed by Redis.
 - **Infrastructure** – Dockerfile installs Python 3.14 and [uv](https://github.com/astral-sh/uv); `compose.yaml` orchestrates Postgres, Redis, Kafka, Zookeeper, API, and consumer services.
 
 ```
@@ -26,7 +26,8 @@ FastAPI (Auth + Orders)
  └── SlowAPI limiter
 
 FastStream consumer
- └── Kafka subscriber -> process_incoming_order
+ ├── Kafka subscriber -> enqueue TaskIQ job
+ └── TaskIQ worker (Redis broker) -> process_incoming_order
 ```
 
 ## Running With Docker
@@ -102,7 +103,7 @@ The OpenAPI spec lives at `/docs` and `/openapi.json` once the container is runn
 
 ## Kafka Consumer
 
-`src/order_consumer` is bundled into the `worker` service. It subscribes to `new_order` and simulates downstream work:
+`src/order_consumer` is bundled into the `worker` service. It subscribes to `new_order` and enqueues TaskIQ jobs (Redis-backed) that simulate downstream work:
 
 ```python
 @router.subscriber("new_order")
@@ -125,6 +126,7 @@ src/
 │   ├── dto/, schemas/     # Pydantic request/response layers
 │   └── app.py             # FastAPI factory & lifespan hooks
 ├── order_consumer/        # FastStream Kafka consumer
+├── order_worker/          # TaskIQ Redis worker
 └── alembic/               # Database migrations
 ```
 
